@@ -1,0 +1,16 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+    <h1> Новости </h1>
+   {% for el in main %}
+    <h3>{{ el.title }}</h3>
+    <h4>{{ el.full_text }}</h4>
+    <h5>{{ el.date }}</h5>
+    <img src='{{ el.image.url }}' alt='{{ el.image.name }}'>
+    {% endfor %}
+
+    <div class='features'>
+        <button class='btn btn-warning'><a href='{% url "export" %}'><i class='bi-pin-map-fill'></i>Выгрузить из базы все новости в формате xlsx</a></button>
+    </div>
+
+{% endblock %}
