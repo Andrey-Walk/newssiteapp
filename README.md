@@ -5,5 +5,5 @@
 #### Login: zemnom7 
 #### Password: zemom7
 #### data in JSON format:
-#### 'http://127.0.0.1:8000/admin/api/news' - list of all news in the database;
-#### 'http://127.0.0.1:8000/admin/api/news/<id>' - getting news by id
+#### 'http://127.0.0.1:8000/api/news' - list of all news in the database;
+#### 'http://127.0.0.1:8000/api/news/<id>' - getting news by id
