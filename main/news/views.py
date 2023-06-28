@@ -1,9 +1,9 @@
+import io
+from django.http import HttpResponse
 import openpyxl
-import json
 from django.shortcuts import render
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from urllib.request import urlopen
+from rest_framework import viewsets
 from .models import Articles
 from .serializers import ArticlesSerializer
 
@@ -25,34 +25,22 @@ def my_view(request):
 
 class FileDetailNewsAPIView(APIView):
     def get(self, request):
-        url = 'http://127.0.0.1:8000/api/news/'
-        response = urlopen(url)
-        data = json.loads(response.read())
+        queryset = Articles.objects.all()
+        data = ArticlesSerializer(queryset, many=True).data
         book = openpyxl.Workbook()
-        book.remove(book.active)
-        print(data)
-        sheet_1 = book.create_sheet('Самолёты')
-        for item in data['posts']:
+        sheet_1 = book.active
+        sheet_1.title = 'Самолёты'
+        for item in data:
             sheet_1.append([item['title'], item['full_text'], item['image'], item['date']])
-        book.save('allnews.xlsx')
-        book.close()
-        lst = Articles.objects.all().values()
-        return Response({'posts': list(lst)})
+        file_stream = io.BytesIO()
+        book.save(file_stream)
+        file_stream.seek(0)
 
+        response = HttpResponse(file_stream, content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="allnews.xlsx"'
 
-class NewsAPIView(APIView):
-    def get(self, request):
-        lst = Articles.objects.all().values()
-        return Response({'posts': list(lst)})
+        return response
 
-
-class DetailNewsAPIView(APIView):
-    def get(self, request, pk):
-        post = Articles.objects.get(pk=pk)
-        serializer_class = ArticlesSerializer(post)
-        return Response(serializer_class.data)
-
-    def post(self, request, pk):
-        post = Articles.objects.get(pk=pk).values()
-        serializer_class = ArticlesSerializer(post)
-        return Response(serializer_class.data)
+class NewsModelViewSet(viewsets.ModelViewSet):
+    queryset = Articles.objects.all()
+    serializer_class = ArticlesSerializer
